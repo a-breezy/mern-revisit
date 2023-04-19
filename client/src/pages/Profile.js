@@ -1,29 +1,40 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 
 import ThoughtList from "../components/ThoughtList";
 import FriendList from "../components/FriendList";
-import { QUERY_USER } from "../utils/queries";
+import { QUERY_USER, QUERY_ME } from "../utils/queries";
+import Auth from "../utils/auth";
 
 const Profile = () => {
 	const { username: userParam } = useParams();
-
-	const { loading, data } = useQuery(QUERY_USER, {
+	const { loading, data } = useQuery(userParam ? QUERY_USER : QUERY_ME, {
 		variables: { username: userParam },
 	});
-
-	const user = data?.user || {};
-
+	const user = data?.me || data?.user || {};
 	if (loading) {
 		return <div>Loading...</div>;
+	}
+
+	if (Auth.loggedIn() && Auth.getProfile().data.username === userParam) {
+		return <Navigate to="/profile" />;
+	}
+
+	if (!user?.username) {
+		return (
+			<h4>
+				You need to be logged in to see this page. Use the navigation links
+				above to sign up or log in!
+			</h4>
+		);
 	}
 
 	return (
 		<div>
 			<div className="flex-row mb-3">
 				<h2 className="bg-dark text-secondary p-3 display-inline-block">
-					Viewing {user.username}'s profile.
+					Viewing {userParam ? `${user.username}'s` : "your"}'s profile.
 				</h2>
 			</div>
 
@@ -35,13 +46,13 @@ const Profile = () => {
 					/>
 				</div>
 
-        <div className="col-12 col-lg-3 mb-3">
-          <FriendList
-            username={user.username}
-            friendCount={user.friendCount}
-            friends={user.friends}
-          />
-        </div>
+				<div className="col-12 col-lg-3 mb-3">
+					<FriendList
+						username={user.username}
+						friendCount={user.friendCount}
+						friends={user.friends}
+					/>
+				</div>
 			</div>
 		</div>
 	);

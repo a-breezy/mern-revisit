@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const ThoughtList = ({ thoughts, title }) => {
+	console.log("thoughts", thoughts);
 	if (!thoughts.length) {
 		return <h3>No Thoughts Yet</h3>;
 	}
@@ -23,7 +24,7 @@ const ThoughtList = ({ thoughts, title }) => {
 							thought on {thought.createdAt}
 						</p>
 						<div className="card-body">
-							<Link to={`/thought/${thought._id}`}>
+							<Link to={`thought/${thought._id}`}>
 								<p>{thought.thoughtText}</p>
 								<p className="mb-0">
 									Reactions: {thought.reactionCount} || Click to{" "}
